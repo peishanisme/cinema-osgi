@@ -9,6 +9,8 @@ public class Session implements Serializable {
     private String showTime;
     private String hallName;
     private String language;
+    private int totalSeats;
+    private int availableSeats;
 
     // Standard Getters and Setters
     public String getSessionid() {
@@ -57,5 +59,21 @@ public class Session implements Serializable {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public int getTotalSeats() {
+        return totalSeats;
+    }
+
+    public void setTotalSeats(int totalSeats) {
+        this.totalSeats = totalSeats;
+    }
+
+    public int getAvailableSeats() {
+        return availableSeats;
+    }
+
+    public void setAvailableSeats(int availableSeats) {
+        this.availableSeats = availableSeats;
     }
 }

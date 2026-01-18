@@ -1,3 +1,4 @@
+com\cbse\cinema\api\model\Seat.class
 com\cbse\cinema\api\service\UserService.class
 com\cbse\cinema\api\service\DatabaseService.class
 com\cbse\cinema\api\service\MovieService.class
