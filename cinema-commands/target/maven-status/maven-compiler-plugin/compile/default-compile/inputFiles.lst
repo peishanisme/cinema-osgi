@@ -1,10 +1,15 @@
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\AddFavoriteCommand.java
-C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\BookCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ApplyPromoCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\CancelBookingCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\CreateBookingCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\FilterMoviesCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\GenreUpdateCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ListBookingsCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ListMoviesCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ListSessionsCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\PayBookingCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\RealTimeSeatMonitorCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\RecommendCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\RecommendSeatCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\RegisterCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ResetSelectionCommand.java
@@ -16,3 +21,5 @@ C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\UserFindCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\UserUpdateCommand.java
 C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ViewAvailabilityCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ViewBookingCommand.java
+C:\Users\user\cinema-osgi\cinema-commands\src\main\java\com\cbse\cinema\commands\ViewTicketCommand.java

@@ -329,4 +329,79 @@ public class MovieServiceImpl implements MovieService {
             return false;
         }
     }
+
+    @Override
+    public List<String> getRecommendations(String userId) {
+        List<String> recommendedIds = new ArrayList<>();
+
+        // We use exactly your working query, just replacing the IDs with ?::uuid
+        String sql = "SELECT m.movieid, m.title FROM movies m " +
+             "WHERE m.genre = ANY ( " +
+             "  SELECT unnest(genres) " +
+             "  FROM users WHERE id = CAST(? AS UUID) " + 
+             ") " +
+             "AND m.movieid NOT IN ( " +
+             "  SELECT s.movieid FROM bookings b " +
+             "  JOIN sessions s ON CAST(b.session_id AS TEXT) = CAST(s.sessionid AS TEXT) " +
+             "  WHERE CAST(b.user_id AS TEXT) = CAST(? AS TEXT) " + 
+             ") " +
+             "LIMIT 5";
+
+        try (Connection conn = dbService.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, userId);
+            pstmt.setString(2, userId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    recommendedIds.add(rs.getString("movieid") + " - " + rs.getString("title"));
+                }
+            }
+            
+            // Fallback for empty results
+            if (recommendedIds.isEmpty()) {
+                String fallbackSql = "SELECT movieid, title FROM movies ORDER BY length DESC LIMIT 3";
+                try (PreparedStatement fPstmt = conn.prepareStatement(fallbackSql);
+                    ResultSet fRs = fPstmt.executeQuery()) {
+                    while (fRs.next()) {
+                        recommendedIds.add(fRs.getString("movieid") + " - " + fRs.getString("title"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return recommendedIds;
+    }
+
+    @Override
+    public void displayMovieDetails(String movieId) {
+        String sql = "SELECT * FROM movies WHERE movieid = ?";
+
+        try (Connection conn = dbService.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, movieId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("\n========================================");
+                System.out.println("         MOVIE DETAILS          ");
+                System.out.println("========================================");
+                System.out.println("TITLE    : " + rs.getString("title"));
+                System.out.println("GENRE    : " + rs.getString("genre"));
+                System.out.println("DURATION : " + rs.getInt("length") + " mins");
+                System.out.println("SYNOPSIS : " + rs.getString("synopsis"));
+                System.out.println("----------------------------------------");
+                System.out.println("Action   : Use 'cinema:sessions " + movieId + "' to book now!");
+                System.out.println("========================================\n");
+            } else {
+                System.out.println("[!] Error: Movie ID " + movieId + " not found.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

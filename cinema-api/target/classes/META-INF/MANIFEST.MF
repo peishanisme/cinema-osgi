@@ -1,14 +1,14 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1768742981330
+Bnd-LastModified: 1768761468798
 Build-Jdk-Spec: 21
 Bundle-ManifestVersion: 2
 Bundle-Name: cinema-api
 Bundle-SymbolicName: com.cbse.cinema.api
 Bundle-Version: 1.0.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin 6.0.0
-Export-Package: com.cbse.cinema.api;version="1.0.0",com.cbse.cinema.api.
- model;version="1.0.0",com.cbse.cinema.api.service;uses:="com.cbse.cinem
- a.api.model";version="1.0.0"
+Export-Package: com.cbse.cinema.api.model;version="1.0.0",com.cbse.cinem
+ a.api.service;uses:="com.cbse.cinema.api.model";version="1.0.0",com.cbs
+ e.cinema.api;version="1.0.0"
 Import-Package: com.cbse.cinema.api.model,java.io,java.lang,java.sql,jav
  a.util
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"

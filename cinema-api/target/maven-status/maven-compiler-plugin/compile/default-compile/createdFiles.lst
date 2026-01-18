@@ -1,8 +1,9 @@
 com\cbse\cinema\api\model\Seat.class
+com\cbse\cinema\api\service\PaymentService.class
 com\cbse\cinema\api\service\UserService.class
 com\cbse\cinema\api\service\DatabaseService.class
 com\cbse\cinema\api\service\MovieService.class
-com\cbse\cinema\api\BookingService.class
 com\cbse\cinema\api\model\Movie.class
 com\cbse\cinema\api\model\User.class
 com\cbse\cinema\api\model\Session.class
+com\cbse\cinema\api\service\BookingService.class

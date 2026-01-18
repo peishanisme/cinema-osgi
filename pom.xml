@@ -13,7 +13,6 @@
     <modules>
         <module>cinema-api</module>
         <module>booking-component</module>
-        <module>payment-component</module>
         <module>cinema-commands</module>
         <module>user-component</module>
         <module>db-component</module>

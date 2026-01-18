@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1768742983150
+Bnd-LastModified: 1768761471582
 Build-Jdk-Spec: 21
 Bundle-ManifestVersion: 2
 Bundle-Name: cinema-commands
@@ -11,7 +11,7 @@ Export-Package: com.cbse.cinema.commands;uses:="org.apache.karaf.shell.a
 Import-Package: com.cbse.cinema.api.model;version="[1.0,2)",com.cbse.cin
  ema.api.service;version="[1.0,2)",org.apache.karaf.shell.api.action;ver
  sion="[4.4,5)",org.apache.karaf.shell.api.action.lifecycle;version="[4.
- 4,5)",java.io,java.lang,java.util
+ 4,5)",java.io,java.lang,java.sql,java.util
 Karaf-Commands: *
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-7.0.0.202310060912
