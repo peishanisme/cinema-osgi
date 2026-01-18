@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <parent>
+        <groupId>com.cbse.cinema</groupId>
+        <artifactId>cinema-osgi</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>cinema-commands</artifactId>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cbse.cinema</groupId>
+            <artifactId>cinema-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.core</artifactId>
+            <version>4.4.9</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+                <instructions>
+                    <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    <Karaf-Commands>*</Karaf-Commands>
+                    <_dsannotations>*</_dsannotations> 
+                    <Import-Package>com.cbse.cinema.api.model,
+            com.cbse.cinema.api.service,
+            org.apache.karaf.shell.api.action,
+            org.apache.karaf.shell.api.action.lifecycle,
+            *</Import-Package>
+                </instructions>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+</project>

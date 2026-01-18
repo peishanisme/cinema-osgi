@@ -1,0 +1,12 @@
+com\cbse\cinema\commands\FilterMoviesCommand.class
+com\cbse\cinema\commands\ListMoviesCommand.class
+com\cbse\cinema\commands\GenreUpdateCommand.class
+com\cbse\cinema\commands\RegisterCommand.class
+com\cbse\cinema\commands\SelectSessionCommand.class
+com\cbse\cinema\commands\UserUpdateCommand.class
+com\cbse\cinema\commands\SearchMovieCommand.class
+com\cbse\cinema\commands\AddFavoriteCommand.class
+com\cbse\cinema\commands\ListSessionsCommand.class
+com\cbse\cinema\commands\UserFindCommand.class
+com\cbse\cinema\commands\BookCommand.class
+com\cbse\cinema\commands\SelectMovieCommand.class

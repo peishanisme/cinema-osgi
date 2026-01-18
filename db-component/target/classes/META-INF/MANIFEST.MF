@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1768732386775
+Build-Jdk-Spec: 21
+Bundle-ManifestVersion: 2
+Bundle-Name: db-component
+Bundle-SymbolicName: db-component
+Bundle-Version: 1.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin 6.0.0
+Export-Package: com.cbse.cinema.db;uses:="com.cbse.cinema.api.service";v
+ ersion="1.0.0"
+Import-Package: java.sql,com.cbse.cinema.api.service;version="[1.0,2)",c
+ om.cbse.cinema.db,java.lang,org.postgresql;version="[42.7,43)",javax.sq
+ l
+Provide-Capability: osgi.service;objectClass:List<String>="com.cbse.cine
+ ma.api.service.DatabaseService";uses:="com.cbse.cinema.api.service"
+Require-Capability: osgi.extender;filter:="(&(osgi.extender=osgi.compone
+ nt)(version>=1.4.0)(!(version>=2.0.0)))",osgi.ee;filter:="(&(osgi.ee=Ja
+ vaSE)(version=1.8))"
+Service-Component: OSGI-INF/com.cbse.cinema.db.SupabaseServiceImpl.xml
+Tool: Bnd-7.0.0.202310060912
