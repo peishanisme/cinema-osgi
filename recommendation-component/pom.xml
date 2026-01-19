@@ -22,6 +22,34 @@
             <version>1.4.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.12</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -29,16 +57,18 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
+                <version>5.1.9</version> <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>com.cbse.cinema.recommendation</Export-Package>
-                        <Import-Package>org.postgresql,
-                        java.sql,
-                        javax.sql,
-                        !com.cbse.cinema.recommendation,
-            *</Import-Package>
+                        <Import-Package>
+                            org.postgresql,
+                            java.sql,
+                            javax.sql,
+                            !com.cbse.cinema.recommendation,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
