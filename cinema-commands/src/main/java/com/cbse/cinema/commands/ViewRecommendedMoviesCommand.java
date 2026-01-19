@@ -2,6 +2,8 @@ package com.cbse.cinema.commands;
 
 import com.cbse.cinema.api.model.Movie;
 import com.cbse.cinema.api.service.MovieService;
+import com.cbse.cinema.api.service.RecommendationService;
+
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -14,7 +16,7 @@ import java.util.List;
 public class ViewRecommendedMoviesCommand implements Action {
 
     @Reference
-    private MovieService movieService;
+    private RecommendationService recommendationService;
 
     @Argument(index = 0, name = "userId", description = "User UUID for personalized recs", required = false)
     private String userId;
@@ -23,7 +25,7 @@ public class ViewRecommendedMoviesCommand implements Action {
     public Object execute() throws Exception {
 
         if (userId != null) {
-            List<Movie> recs = movieService.getRecommendedMovieDetails(userId);
+            List<Movie> recs = recommendationService.getRecommendedMovieDetails(userId);
             if (!recs.isEmpty()) {
                 System.out.println("\n JUST FOR YOU (Recommended) ");
                 System.out.println("----------------------------------------------------------------");

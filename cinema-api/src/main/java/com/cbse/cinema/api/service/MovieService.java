@@ -21,18 +21,18 @@ public interface MovieService {
 
     List<Seat> getSeatLayout(String sessionId);
 
-    List<Integer> getRecommendedSeats(int numSeats, String sessionId);
+    // List<Integer> getRecommendedSeats(int numSeats, String sessionId);
 
     boolean lockSeats(String userId, String sessionId, List<Integer> seatNumbers);
 
     boolean releaseSeats(String userId, String sessionId, List<Integer> seatNumbers);
 
-    List<String> getRecommendations(String userId);
+    // List<String> getRecommendations(String userId);
 
-    List<Movie> getRecommendedMovieDetails(String userId);
+    // List<Movie> getRecommendedMovieDetails(String userId);
 
     void displayMovieDetails(String movieId);
 
-    List<Session> getRecommendedSessions(String movieId);
+    // List<Session> getRecommendedSessions(String movieId);
 
 }

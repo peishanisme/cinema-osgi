@@ -2,6 +2,8 @@ package com.cbse.cinema.commands;
 
 import com.cbse.cinema.api.model.Session;
 import com.cbse.cinema.api.service.MovieService;
+import com.cbse.cinema.api.service.RecommendationService;
+
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -14,7 +16,7 @@ import java.util.List;
 public class RecommendSessionsCommand implements Action {
 
     @Reference
-    private MovieService movieService;
+    private RecommendationService recommendationService;
 
     @Argument(index = 0, name = "movieId", description = "The ID of the movie", required = true)
     private String movieId;
@@ -23,7 +25,7 @@ public class RecommendSessionsCommand implements Action {
     public Object execute() throws Exception {
         System.out.println("Analyzing availability for Movie ID: " + movieId + "...");
 
-        List<Session> recommendations = movieService.getRecommendedSessions(movieId);
+        List<Session> recommendations = recommendationService.getRecommendedSessions(movieId);
 
         if (recommendations.isEmpty()) {
             System.out.println("No sessions found for this movie.");

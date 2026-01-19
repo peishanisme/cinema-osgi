@@ -1,5 +1,6 @@
 package com.cbse.cinema.commands;
 
+import com.cbse.cinema.api.service.RecommendationService;
 import com.cbse.cinema.api.service.MovieService;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Argument;
@@ -15,7 +16,9 @@ import java.util.List;
 public class SelectRecommendedSeatCommand implements Action {
 
     @Reference
-    private MovieService movieService;
+    private RecommendationService recommendationService;
+    @Reference
+    private  MovieService movieService;
 
     @Argument(index = 0, name = "userId", description = "The User UUID", required = true)
     private String userId;
@@ -31,7 +34,7 @@ public class SelectRecommendedSeatCommand implements Action {
         System.out.println("Fetching recommendations for " + numSeats + " seats...");
 
         // 1. Call getRecommendedSeats to get the best available block
-        List<Integer> recommendedSeats = movieService.getRecommendedSeats(numSeats, sessionId);
+        List<Integer> recommendedSeats = recommendationService.getRecommendedSeats(numSeats, sessionId);
 
         if (recommendedSeats == null || recommendedSeats.isEmpty()) {
             System.out.println("\n[!] Error: No suitable block of " + numSeats + " seats could be recommended.");

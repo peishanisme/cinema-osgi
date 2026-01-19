@@ -17,6 +17,7 @@
         <module>user-component</module>
         <module>db-component</module>
         <module>movie-component</module>
+        <module>recommendation-component</module>
     </modules>
 
     <properties>
