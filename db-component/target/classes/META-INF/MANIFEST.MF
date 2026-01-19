@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1768761474032
+Bnd-LastModified: 1768788963592
 Build-Jdk-Spec: 21
 Bundle-ManifestVersion: 2
 Bundle-Name: db-component

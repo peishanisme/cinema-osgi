@@ -9,9 +9,9 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 
 import java.util.List;
 
-@Command(scope = "cinema", name = "recommend", description = "View recommended movies based on preferences (UC-25)")
+@Command(scope = "cinema", name = "recommend-movies", description = "View recommended movies based on preferences (UC-25)")
 @Service
-public class RecommendCommand implements Action {
+public class RecommendMoviesCommand implements Action {
 
     @Reference
     private MovieService movieService;
@@ -36,7 +36,7 @@ public class RecommendCommand implements Action {
                 for (String rec : recommendations) {
                     System.out.println(" > " + rec);
                 }
-                System.out.println("\nTo view details, type: cinema:recommend " + userId + " [MovieID]");
+                System.out.println("\nTo view details, type: cinema:recommend-movies " + userId);
             }
         } else {
             // FLOW: Detailed Movie View

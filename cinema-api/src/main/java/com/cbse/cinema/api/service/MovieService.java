@@ -29,6 +29,10 @@ public interface MovieService {
 
     List<String> getRecommendations(String userId);
 
+    List<Movie> getRecommendedMovieDetails(String userId);
+
     void displayMovieDetails(String movieId);
+
+    List<Session> getRecommendedSessions(String movieId);
 
 }

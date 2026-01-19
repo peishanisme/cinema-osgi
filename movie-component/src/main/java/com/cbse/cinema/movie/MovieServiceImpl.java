@@ -95,7 +95,6 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<Movie> getMoviesByGenre(String genre) {
         List<Movie> filteredMovies = new ArrayList<>();
-        // Exact match for the genre column
         String sql = "SELECT * FROM movies WHERE genre = ?";
 
         try (Connection conn = dbService.getConnection();
@@ -122,7 +121,6 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<Session> getSessionsByMovie(String movieId) {
         List<Session> sessions = new ArrayList<>();
-        // Use * to ensure we get total_seats and available_seats
         String sql = "SELECT * FROM sessions WHERE movieid = ?";
 
         try (Connection conn = dbService.getConnection();
@@ -132,7 +130,6 @@ public class MovieServiceImpl implements MovieService {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                // Use your helper method here to get ALL fields including seats
                 sessions.add(mapResultSetToSession(rs));
             }
         } catch (SQLException e) {
@@ -143,7 +140,12 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Session getSessionById(String sessionId) {
-        String sql = "SELECT * FROM sessions WHERE sessionid = ?";
+
+        String sql = "SELECT s.*, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid) as calculated_total, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid AND status = 'AVAILABLE') as calculated_available " +
+                    "FROM sessions s WHERE s.sessionid = ?";
+                    
         try (Connection conn = dbService.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
@@ -151,7 +153,6 @@ public class MovieServiceImpl implements MovieService {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                // Use your helper method here too
                 return mapResultSetToSession(rs);
             }
         } catch (SQLException e) {
@@ -160,19 +161,18 @@ public class MovieServiceImpl implements MovieService {
         return null;
     }
 
-    // Your helper method is perfect - it captures the dynamic seat data!
     private Session mapResultSetToSession(ResultSet rs) throws SQLException {
         Session s = new Session();
         s.setSessionid(rs.getString("sessionid"));
-        s.setMovieid(rs.getString("movieid")); // Don't forget the movieid link
+        s.setMovieid(rs.getString("movieid")); 
         s.setShowDate(rs.getDate("show_date").toString());
         s.setShowTime(rs.getTime("show_time").toString());
         s.setHallName(rs.getString("hall_name"));
         s.setLanguage(rs.getString("language"));
         
-        // Fetch seat data for UC-12
-        s.setTotalSeats(rs.getInt("total_seats"));
-        s.setAvailableSeats(rs.getInt("available_seats"));
+        s.setTotalSeats(rs.getInt("calculated_total"));
+        s.setAvailableSeats(rs.getInt("calculated_available"));
+        
         return s;
     }
 
@@ -229,7 +229,6 @@ public class MovieServiceImpl implements MovieService {
             List<Integer> bestSeatsInRow = null;
             double minOffset = Double.MAX_VALUE;
 
-            // Check every possible starting position in the row for 'numSeats'
             for (int i = 0; i <= COLUMNS - numSeats; i++) {
                 List<Integer> potentialSlice = new ArrayList<>();
                 boolean allAvailable = true;
@@ -244,7 +243,6 @@ public class MovieServiceImpl implements MovieService {
                 }
 
                 if (allAvailable) {
-                    // Calculate Center Offset (same as your JS getCenterOffset)
                     double selectionCenter = i + (numSeats - 1) / 2.0;
                     double theaterCenter = (COLUMNS - 1) / 2.0;
                     double offset = Math.abs(selectionCenter - theaterCenter);
@@ -256,7 +254,6 @@ public class MovieServiceImpl implements MovieService {
                 }
             }
 
-            // If we found a valid block in the preferred row, return it immediately
             if (bestSeatsInRow != null) {
                 return bestSeatsInRow;
             }
@@ -269,7 +266,6 @@ public class MovieServiceImpl implements MovieService {
     public boolean lockSeats(String sessionId, List<Integer> seatNumbers) {
         if (seatNumbers == null || seatNumbers.isEmpty()) return false;
 
-        // Build a query like: UPDATE seats ... WHERE seat_number IN (1, 2, 3)
         StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'LOCKED' WHERE session_id = ? AND status = 'AVAILABLE' AND seat_number IN (");
         for (int i = 0; i < seatNumbers.size(); i++) {
             sql.append("?");
@@ -299,7 +295,6 @@ public class MovieServiceImpl implements MovieService {
     public boolean releaseSeats(String sessionId, List<Integer> seatNumbers) {
         if (seatNumbers == null || seatNumbers.isEmpty()) return false;
 
-        // Build the dynamic IN clause: (?, ?, ?)
         StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'AVAILABLE' ")
                 .append("WHERE session_id = ? AND status = 'LOCKED' AND seat_number IN (");
         
@@ -334,7 +329,6 @@ public class MovieServiceImpl implements MovieService {
     public List<String> getRecommendations(String userId) {
         List<String> recommendedIds = new ArrayList<>();
 
-        // We use exactly your working query, just replacing the IDs with ?::uuid
         String sql = "SELECT m.movieid, m.title FROM movies m " +
              "WHERE m.genre = ANY ( " +
              "  SELECT unnest(genres) " +
@@ -404,4 +398,49 @@ public class MovieServiceImpl implements MovieService {
         }
     }
 
+    @Override
+    public List<Session> getRecommendedSessions(String movieId) {
+        List<Session> recommended = new ArrayList<>();
+        
+        String sql = "SELECT s.*, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid) as calculated_total, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid AND status = 'AVAILABLE') as calculated_available " +
+                    "FROM sessions s " +
+                    "WHERE s.movieid = ? " +
+                    "ORDER BY calculated_available DESC " +
+                    "LIMIT 3";
+
+        try (Connection conn = dbService.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, movieId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                recommended.add(mapResultSetToSession(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error in Recommended Sessions: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return recommended;
+    }
+
+    @Override
+    public List<Movie> getRecommendedMovieDetails(String userId) {
+        List<Movie> recommendedMovies = new ArrayList<>();
+        
+        // 1. Get the list of recommended ID - Title strings from your existing logic
+        List<String> recStrings = getRecommendations(userId);
+        
+        for (String entry : recStrings) {
+            String movieId = entry.split(" - ")[0].trim();
+            
+            Movie movie = getMovieById(movieId);
+            if (movie != null) {
+                recommendedMovies.add(movie);
+            }
+        }
+        return recommendedMovies;
+    }
 }
