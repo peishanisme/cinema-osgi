@@ -121,7 +121,12 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<Session> getSessionsByMovie(String movieId) {
         List<Session> sessions = new ArrayList<>();
-        String sql = "SELECT * FROM sessions WHERE movieid = ?";
+        
+        String sql = "SELECT s.*, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid) as calculated_total, " +
+                    "(SELECT COUNT(*) FROM seats WHERE session_id = s.sessionid AND status = 'AVAILABLE') as calculated_available " +
+                    "FROM sessions s " +
+                    "WHERE s.movieid = ?";
 
         try (Connection conn = dbService.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -133,10 +138,11 @@ public class MovieServiceImpl implements MovieService {
                 sessions.add(mapResultSetToSession(rs));
             }
         } catch (SQLException e) {
+            System.err.println("Error fetching sessions for movie: " + e.getMessage());
             e.printStackTrace();
         }
         return sessions;
-    }   
+    }
 
     @Override
     public Session getSessionById(String sessionId) {
@@ -208,7 +214,7 @@ public class MovieServiceImpl implements MovieService {
 
         // 1. Get current occupied seats for this session
         List<Integer> occupiedSeats = new ArrayList<>();
-        String sql = "SELECT seat_number FROM seats WHERE session_id = ? AND status = 'BOOKED'";
+        String sql = "SELECT seat_number FROM seats WHERE session_id = ? AND (status = 'BOOKED' OR status = 'LOCKED')";
         
         try (Connection conn = dbService.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -263,40 +269,11 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public boolean lockSeats(String sessionId, List<Integer> seatNumbers) {
+    public boolean lockSeats(String userId, String sessionId, List<Integer> seatNumbers) {
         if (seatNumbers == null || seatNumbers.isEmpty()) return false;
 
-        StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'LOCKED' WHERE session_id = ? AND status = 'AVAILABLE' AND seat_number IN (");
-        for (int i = 0; i < seatNumbers.size(); i++) {
-            sql.append("?");
-            if (i < seatNumbers.size() - 1) sql.append(",");
-        }
-        sql.append(")");
-
-        try (Connection conn = dbService.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            
-            pstmt.setString(1, sessionId);
-            for (int i = 0; i < seatNumbers.size(); i++) {
-                pstmt.setInt(i + 2, seatNumbers.get(i));
-            }
-            
-            int rowsUpdated = pstmt.executeUpdate();
-            
-            // Success only if we locked the exact amount requested
-            return rowsUpdated == seatNumbers.size();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-   @Override
-    public boolean releaseSeats(String sessionId, List<Integer> seatNumbers) {
-        if (seatNumbers == null || seatNumbers.isEmpty()) return false;
-
-        StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'AVAILABLE' ")
-                .append("WHERE session_id = ? AND status = 'LOCKED' AND seat_number IN (");
+        StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'LOCKED', locked_by = CAST(? AS UUID), locked_at = CURRENT_TIMESTAMP ")
+                .append("WHERE session_id = ? AND status = 'AVAILABLE' AND seat_number IN (");
         
         for (int i = 0; i < seatNumbers.size(); i++) {
             sql.append("?");
@@ -307,17 +284,53 @@ public class MovieServiceImpl implements MovieService {
         try (Connection conn = dbService.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             
-            // Set the sessionId first
+            pstmt.setString(1, userId);    
+            pstmt.setString(2, sessionId); 
+            
+            for (int i = 0; i < seatNumbers.size(); i++) {
+                pstmt.setInt(i + 3, seatNumbers.get(i)); 
+            }
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated == seatNumbers.size();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+   @Override
+    public boolean releaseSeats(String userId, String sessionId, List<Integer> seatNumbers) {
+        if (seatNumbers == null || seatNumbers.isEmpty()) return false;
+
+        // Use StringBuilder to allow .append()
+        StringBuilder sql = new StringBuilder("UPDATE seats SET status = 'AVAILABLE', locked_by = NULL, locked_at = NULL ")
+                .append("WHERE session_id = CAST(? AS UUID) AND locked_by = CAST(? AS UUID) AND seat_number IN (");
+
+        for (int i = 0; i < seatNumbers.size(); i++) {
+            sql.append("?");
+            if (i < seatNumbers.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(")");
+
+        try (Connection conn = dbService.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            
+            // Parameter 1: sessionId
             pstmt.setString(1, sessionId);
             
-            // Set each seat number in the IN clause starting from parameter index 2
+            // Parameter 2: userId
+            pstmt.setString(2, userId);
+            
+            // Parameters 3 onwards: the seat numbers
             for (int i = 0; i < seatNumbers.size(); i++) {
-                pstmt.setInt(i + 2, seatNumbers.get(i));
+                pstmt.setInt(i + 3, seatNumbers.get(i)); 
             }
             
             int rowsUpdated = pstmt.executeUpdate();
             
-            // Returns true if at least one seat was successfully released
             return rowsUpdated > 0;
         } catch (SQLException e) {
             System.err.println("Error releasing seats: " + e.getMessage());

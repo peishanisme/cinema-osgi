@@ -23,9 +23,9 @@ public interface MovieService {
 
     List<Integer> getRecommendedSeats(int numSeats, String sessionId);
 
-    boolean lockSeats(String sessionId, List<Integer> seatNumbers);
+    boolean lockSeats(String userId, String sessionId, List<Integer> seatNumbers);
 
-    boolean releaseSeats(String sessionId, List<Integer> seatNumbers);
+    boolean releaseSeats(String userId, String sessionId, List<Integer> seatNumbers);
 
     List<String> getRecommendations(String userId);
 

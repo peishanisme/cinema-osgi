@@ -17,14 +17,14 @@ public class SelectRecommendedSeatCommand implements Action {
     @Reference
     private MovieService movieService;
 
-    @Argument(index = 0, name = "sessionId", description = "The session UUID", required = true)
+    @Argument(index = 0, name = "userId", description = "The User UUID", required = true)
+    private String userId;
+
+    @Argument(index = 1, name = "sessionId", description = "The session UUID", required = true)
     private String sessionId;
 
-    @Argument(index = 1, name = "numSeats", description = "Number of seats the user wants to book", required = true)
+    @Argument(index = 2, name = "numSeats", description = "Number of seats the user wants to book", required = true)
     private int numSeats;
-
-    @Argument(index = 2, name = "userId", description = "The User UUID", required = true)
-    private String userId;
 
     @Override
     public Object execute() throws Exception {
@@ -42,7 +42,7 @@ public class SelectRecommendedSeatCommand implements Action {
         System.out.println("Locking these seats for User " + userId + "...");
 
         // 2. Pass the recommended list directly into the lockSeats method
-        boolean isLocked = movieService.lockSeats(sessionId, recommendedSeats);
+        boolean isLocked = movieService.lockSeats(userId,sessionId, recommendedSeats);
 
         if (isLocked) {
             System.out.println("\n------------------------------------------------");

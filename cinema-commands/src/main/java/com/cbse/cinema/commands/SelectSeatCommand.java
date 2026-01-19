@@ -9,28 +9,35 @@ import org.apache.karaf.shell.api.action.Command;
 import java.util.List;
 
 // uc16 - select and lock seat
-@Command(scope = "cinema", name = "seat-select", description = "Select multiple seats")
+@Command(scope = "cinema", name = "seat-select", description = "Select and lock multiple seats (UC-16)")
 @Service
 public class SelectSeatCommand implements Action {
 
     @Reference
     private MovieService movieService;
 
-    @Argument(index = 0, name = "sessionId", required = true)
+     @Argument(index = 0, name = "userId", description = "User UUID", required = true)
+    private String userId;
+    
+    @Argument(index = 1, name = "sessionId", description = "Session UUID", required = true)
     private String sessionId;
 
-    // This collects all numbers typed after the sessionId
-    @Argument(index = 1, name = "seatNumbers", multiValued = true, required = true)
+    @Argument(index = 2, name = "seatNumbers", multiValued = true, required = true)
     private List<Integer> seatNumbers;
 
     @Override
     public Object execute() throws Exception {
-        boolean success = movieService.lockSeats(sessionId, seatNumbers);
+        System.out.println("Attempting to lock seats " + seatNumbers + " for User: " + userId);
+        
+        // Passing the userId to your service logic
+        boolean success = movieService.lockSeats(userId, sessionId, seatNumbers);
 
         if (success) {
-            System.out.println("Success! Seats " + seatNumbers + " are now LOCKED.");
+            System.out.println("\n[SUCCESS] Seats " + seatNumbers + " are now LOCKED.");
+            System.out.println("These seats are reserved for your account.");
+            System.out.println("Next: Proceed to payment to finalize booking.");
         } else {
-            System.out.println("Error: One or more selected seats are unavailable.");
+            System.out.println("\n[ERROR] Selection failed. One or more seats are already taken or locked.");
         }
         return null;
     }

@@ -65,17 +65,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public int createBooking(String userId, String sessionId, List<Integer> seatNumbers, double totalPrice,
-            String promoCode) {
-        boolean locked = movieService.lockSeats(sessionId, seatNumbers);
-        if (!locked)
-            return -1;
+    public int createBooking(String userId, String sessionId, List<Integer> seatNumbers, double totalPrice, String promoCode) {
+        
+        // Step 1: Verify that ALL requested seats are currently LOCKED by THIS user
+        String checkLockSql = "SELECT COUNT(*) FROM seats " +
+                            "WHERE session_id = CAST(? AS TEXT) " +
+                            "AND seat_number = ANY(?) " +
+                            "AND status = 'LOCKED' " +
+                            "AND locked_by = CAST(? AS UUID)";
 
         try (Connection conn = dbService.getConnection()) {
-            conn.setAutoCommit(false);
+            Array seatArray = conn.createArrayOf("integer", seatNumbers.toArray());
 
-            // Added applied_promo to the INSERT statement
-            String sql = "INSERT INTO bookings (user_id, session_id, total_price, status, applied_promo) VALUES (?, ?, ?, 'PENDING', ?) RETURNING booking_id";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkLockSql)) {
+                checkStmt.setString(1, sessionId);
+                checkStmt.setArray(2, seatArray);
+                checkStmt.setString(3, userId);
+                
+                ResultSet rsCheck = checkStmt.executeQuery();
+                if (rsCheck.next() && rsCheck.getInt(1) != seatNumbers.size()) {
+                    // Flow: One or more seats are not locked by this user
+                    System.out.println("[!] Error: Some seats are no longer reserved for you. Please re-select.");
+                    return -1; 
+                }
+            }
+
+            // Step 2: Proceed with Booking Creation (Now that we know the seats are safe)
+            conn.setAutoCommit(false);
+            String sql = "INSERT INTO bookings (user_id, session_id, total_price, status, applied_promo) " +
+                        "VALUES (CAST(? AS UUID), CAST(? AS TEXT), ?, 'PENDING', ?) RETURNING booking_id";
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, userId);
@@ -87,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
                 if (rs.next()) {
                     int bookingId = rs.getInt(1);
 
-                    // Link seats logic
+                    // Step 3: Link seats to booking
                     String linkSql = "INSERT INTO booking_seats (booking_id, seat_number) VALUES (?, ?)";
                     try (PreparedStatement lPstmt = conn.prepareStatement(linkSql)) {
                         for (int seat : seatNumbers) {
@@ -103,7 +121,6 @@ public class BookingServiceImpl implements BookingService {
                 }
             } catch (SQLException e) {
                 conn.rollback();
-                movieService.releaseSeats(sessionId, seatNumbers);
                 throw e;
             }
         } catch (SQLException e) {
@@ -172,7 +189,6 @@ public class BookingServiceImpl implements BookingService {
     public String cancelBooking(int bookingId) {
         try (Connection conn = dbService.getConnection()) {
             // 1. UC-23 Flow 2: Check Eligibility (Time Window)
-            // We join with movie_sessions to check the showtime
             String checkSql = "SELECT b.status, s.show_time as showtime, b.total_price " +
                             "FROM bookings b " +
                             "JOIN sessions s ON b.session_id = s.sessionid " +
@@ -207,10 +223,17 @@ public class BookingServiceImpl implements BookingService {
                     upPstmt.executeUpdate();
 
                     // Release Seats (UC-23 Post-condition)
-                    String releaseSeats = "UPDATE seats SET status = 'AVAILABLE' WHERE seat_number IN " +
-                                        "(SELECT seat_number FROM booking_seats WHERE booking_id = ?)";
+                    String releaseSeats = "UPDATE seats SET " +
+                        "status = 'AVAILABLE', " +
+                        "locked_by = NULL, " +
+                        "locked_at = NULL " +
+                        "WHERE seat_number IN (" +
+                        "  SELECT seat_number FROM booking_seats WHERE booking_id = ?" +
+                        ") " +
+                        "AND session_id = (SELECT session_id FROM bookings WHERE booking_id = ?)";
                     PreparedStatement relPstmt = conn.prepareStatement(releaseSeats);
                     relPstmt.setInt(1, bookingId);
+                    relPstmt.setInt(2, bookingId);
                     relPstmt.executeUpdate();
 
                     conn.commit();
