@@ -1,14 +1,19 @@
 package com.cbse.cinema.user;
 
-import com.cbse.cinema.api.model.User;
-import com.cbse.cinema.api.service.UserService;
-import com.cbse.cinema.api.service.DatabaseService; // Import your new service
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.PreparedStatement; 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.cbse.cinema.api.model.User;
+import com.cbse.cinema.api.service.DatabaseService;
+import com.cbse.cinema.api.service.UserService;
 
 @Component(service = UserService.class)
 

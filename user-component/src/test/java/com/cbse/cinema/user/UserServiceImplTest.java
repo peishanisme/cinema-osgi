@@ -4,9 +4,11 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -112,6 +114,17 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void testUpdateUser_DatabaseError() throws Exception {
+        User user = new User();
+        user.setId(UUID.randomUUID().toString());
+        // Force an error
+        when(dbService.getConnection()).thenThrow(new SQLException("Database Offline"));
+
+        // Assert that the component handles the error gracefully
+        assertDoesNotThrow(() -> userService.updateUser(user));
+    }
+
+    @Test
     void testUpdateGenres() throws Exception {
         // Arrange
         String userId = UUID.randomUUID().toString();
@@ -146,6 +159,15 @@ public class UserServiceImplTest {
         // Assert
         verify(preparedStatement).setString(1, movieId);
         verify(preparedStatement).setObject(2, UUID.fromString(userId));
+        verify(preparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testAddFavorite_AlreadyExists() throws Exception {
+        when(preparedStatement.executeUpdate()).thenReturn(0); 
+
+        userService.addFavorite(UUID.randomUUID().toString(), "movie_123");
+
         verify(preparedStatement).executeUpdate();
     }
 }
