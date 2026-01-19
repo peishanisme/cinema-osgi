@@ -1,0 +1,4 @@
+**/target/
+*.jar
+apache-karaf-4.4.9/
+apache-karaf-4.4.9.tar.gz
