@@ -16,9 +16,10 @@ The system is divided into the following OSGi bundles:
 | `cinema-api` | Service interfaces and Data Models (POJOs) |
 | `cinema-commands` | Gogo Shell command implementations |
 | `db-component` | Database connection management (PostgreSQL) |
-| `user-component` | User profile and genre preference logic |
+| `user-component` | Managing all aspects of a user's account |
 | `movie-component` | Movie metadata, sessions, and seat layout logic |
-| `booking-component` | Transactional logic (Price calculation, payment, and cancellation) |
+| `booking-component` | Handle booking, payment and ticket |
+| `recommendation-component` | Manage recommendation for seats, movies and sessions |
 
 ---
 
@@ -73,6 +74,7 @@ Inside the Karaf console, run these commands in order:
     bundle:install -s file:/C:/Users/user/cinema-osgi/user-component/target/user-component-1.0.0-SNAPSHOT.jar
     bundle:install -s file:/C:/Users/user/cinema-osgi/movie-component/target/movie-component-1.0.0-SNAPSHOT.jar
     bundle:install -s file:/C:/Users/user/cinema-osgi/booking-component/target/booking-component-1.0.0-SNAPSHOT.jar
+    bundle:install -s file:/C:/Users/user/cinema-osgi/recommendation-component/target/recommendation-component-1.0.0-SNAPSHOT.jar
 
 Tips: After installation, verify if they are running by typing: list. You want to see Active in the status column. If you see Installed or Failure, check log:display.
 
