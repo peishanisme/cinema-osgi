@@ -31,6 +31,8 @@ The system is divided into the following OSGi bundles:
 - **Git**
 - **Supabase (PostgreSQL)**
 
+---
+
 ## Install and Deployment Guide (Apache Karaf)
 
 ### 1. Setup Apache Karaf
@@ -69,7 +71,6 @@ The system is divided into the following OSGi bundles:
 
 Inside the Karaf console, run these commands in order:
 
-    ```powershell
     # 1. Install Required SCR (for @Component)
     feature:install scr
 
@@ -86,7 +87,9 @@ Inside the Karaf console, run these commands in order:
     bundle:install -s file:/C:/Users/user/cinema-osgi/booking-component/target/booking-component-1.0.0-SNAPSHOT.jar
     bundle:install -s file:/C:/Users/user/cinema-osgi/recommendation-component/target/recommendation-component-1.0.0-SNAPSHOT.jar
 
-Tips: After installation, verify if they are running by typing: list. You want to see Active in the status column. If you see Installed or Failure, check log:display.
+Tips: After installation, verify if they are running by typing: `list`. You want to see Active in the status column. If you see Installed or Failure, check `log:display`.
+
+---
 
 ## Command Reference
 
@@ -101,7 +104,7 @@ Tips: After installation, verify if they are running by typing: list. You want t
 | Add favourite movie      | `cinema:favourite-add [user_uuid] "movie_id"`   | `cinema:favourite-add c39e7a3e-0131-4746-b617-638e9dc5e136 "M002"`                      |
 | View booking history     | `cinema:user-bookings [user_uuid]`              | `cinema:user-bookings c39e7a3e-0131-4746-b617-638e9dc5e136`                             |
 
-### 🎬 Movie & Session Discovery (UC5 – UC13)
+### 🎬 Movie & Session Discovery (UC5 – UC15 excluding UC14)
 
 | Description               | Command                            | Example                          |
 | ------------------------- | ---------------------------------- | -------------------------------- |
@@ -110,7 +113,10 @@ Tips: After installation, verify if they are running by typing: list. You want t
 | Select movie              | `cinema:movie-select "movie_id"`   | `cinema:movie-select "M001"`     |
 | Filter movies by genre    | `cinema:movie-filter "genre"`      | `cinema:movie-filter "Action"`   |
 | List sessions for a movie | `cinema:movie-sessions "movie_id"` | `cinema:movie-sessions "M001"`   |
+| Show details for a session | `cinema:session-select "session_id"` | `cinema:movie-sessions "S001"`   |
+| Show seat availability for a session | `cinema:session-availability "session_id"` | `cinema:session-availability "S001"`   |
 | Display seat map layout   | `cinema:seat-map "session_id"`     | `cinema:seat-map "S001"`         |
+| Real time track seat availability   | `cinema:seat-monitor "session_id"`     | `cinema:seat-monitor "S001"`         |
 
 ### 🎟️ Booking & Selection (UC16 – UC24)
 
@@ -122,14 +128,31 @@ Tips: After installation, verify if they are running by typing: list. You want t
 | Make payment                 | `cinema:book-pay [booking_id] "payment_method"`            | `cinema:book-pay 7 "Credit Card"`                                    |
 | Generate QR ticket           | `cinema:book-ticket [booking_id]`                          | `cinema:book-ticket 7`                                               |
 | Cancel booking               | `cinema:book-cancel [booking_id]`                          | `cinema:book-cancel 7`                                               |
+| Vuew booking details               | `cinema:book-details [booking_id]`                          | `cinema:book-details 7`                                               |
 
-### ✨ Recommendation Features (UC25 – UC28)
+
+### ✨ Recommendation Features (UC14 & 25 – UC28)
 
 | Description                                | Command                                                 | Example                                                               |
 | ------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------- |
+| Recommend seat based on ceat numbers | `cinema:seat-recommend "session_id" [count]`                     | `cinema:recommend-movies "S001" 2`        |
 | Recommend movies based on user preferences | `cinema:recommend-movies [user_id]`                     | `cinema:recommend-movies c39e7a3e-0131-4746-b617-638e9dc5e136`        |
 | Auto-select recommended seat(s)            | `cinema:seat-select-rec [user_id] [session_id] [count]` | `cinema:seat-select-rec c39e7a3e-0131-4746-b617-638e9dc5e136 S001 2`  |
 | Recommend sessions for a movie             | `cinema:session-recommend [movie_id]`                   | `cinema:session-recommend M001`                                       |
 | View recommended movie details             | `cinema:view-recommended-movies [user_id]`              | `cinema:view-recommended-movies c39e7a3e-0131-4746-b617-638e9dc5e136` |
 
 #### Supabase project: https://supabase.com/dashboard/project/lnuazfaxqcdykxsartsd
+
+---
+
+## Testing
+1. Test each component:
+   ```
+   mvn test -pl <component-name>
+   ```
+   (_eg: mvn test user-component_)
+2. overall test:
+  ```
+   mvn clean test
+  ```
+
